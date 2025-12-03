@@ -52,7 +52,7 @@
       margin-bottom: 40px;
     }
 
-    input {
+    input, select {
       padding: 10px;
       width: 90%;
       font-size: 16px;
@@ -100,6 +100,137 @@
       <br>
       <button onclick="getRCR()">Get RCR</button>
       <div id="result"></div>
+    </div>
+
+    <!-- Benchmarking Feature -->
+<div class="container">
+  <h2>Benchmark Article</h2>
+  <label>Specialty:</label>
+  <select id="benchmarkSpecialty">
+    <option value="All">All Specialties</option>
+    <option value="Orthopaedic Surgery">Orthopaedic Surgery</option>
+    <option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option>
+    <option value="Neurosurgery">Neurosurgery</option>
+    <option value="Cardiothoracic Surgery">Cardiothoracic Surgery</option>
+    <option value="Plastic Surgery">Plastic Surgery</option>
+    <option value="General Surgery">General Surgery</option>
+    <option value="Otolaryngology">Otolaryngology</option>
+    <option value="Urology">Urology</option>
+    <option value="Colorectal Surgery">Colorectal Surgery</option>
+    <option value="Ophthalmology">Ophthalmology</option>
+    <option value="Dermatology">Dermatology</option>
+    <option value="Oncology">Oncology</option>
+    <option value="Psychiatry">Psychiatry</option>
+    <option value="Emergency Medicine">Emergency Medicine</option>
+    <option value="Pediatrics">Pediatrics</option>
+    <option value="Cardiology">Cardiology</option>
+    <option value="Family Medicine">Family Medicine</option>
+    <option value="Anesthesiology">Anesthesiology</option>
+    <option value="Neurology">Neurology</option>
+    <option value="Endocrinology">Endocrinology</option>
+    <option value="Radiology">Radiology</option>
+    <option value="Allergy and Immunology">Allergy and Immunology</option>
+    <option value="Nephrology">Nephrology</option>
+    <option value="Rheumatology">Rheumatology</option>
+  </select>
+
+  <label>Location:</label>
+  <select id="benchmarkLocation">
+    <option value="All">All Locations</option>
+    <option value="Afghanistan">Afghanistan</option>
+    <option value="Albania">Albania</option>
+    <option value="Antigua and Barbuda">Antigua and Barbuda</option>
+    <option value="Argentina">Argentina</option>
+    <option value="Aruba">Aruba</option>
+    <option value="Australia">Australia</option>
+    <option value="Austria">Austria</option>
+    <option value="Azerbaijan">Azerbaijan</option>
+    <option value="Bahrain">Bahrain</option>
+    <option value="Bangladesh">Bangladesh</option>
+    <option value="Barbados">Barbados</option>
+    <option value="Belarus">Belarus</option>
+    <option value="Bhutan">Bhutan</option>
+    <option value="Botswana">Botswana</option>
+    <option value="Brazil">Brazil</option>
+    <option value="Bulgaria">Bulgaria</option>
+    <option value="Canada">Canada</option>
+    <option value="Cayman Islands">Cayman Islands</option>
+    <option value="China">China</option>
+    <option value="Colombia">Colombia</option>
+    <option value="Costa Rica">Costa Rica</option>
+    <option value="Croatia">Croatia</option>
+    <option value="Cuba">Cuba</option>
+    <option value="Czech Republic">Czech Republic</option>
+    <option value="Denmark">Denmark</option>
+    <option value="Dominica">Dominica</option>
+    <option value="Egypt">Egypt</option>
+    <option value="Ethiopia">Ethiopia</option>
+    <option value="France">France</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Germany">Germany</option>
+    <option value="Ghana">Ghana</option>
+    <option value="Grenada">Grenada</option>
+    <option value="Guyana">Guyana</option>
+    <option value="Hong Kong">Hong Kong</option>
+    <option value="Hungary">Hungary</option>
+    <option value="India">India</option>
+    <option value="Indonesia">Indonesia</option>
+    <option value="Iran">Iran</option>
+    <option value="Iraq">Iraq</option>
+    <option value="Republic of Ireland">Republic of Ireland</option>
+    <option value="Israel">Israel</option>
+    <option value="Italy">Italy</option>
+    <option value="Japan">Japan</option>
+    <option value="Kyrgyzstan">Kyrgyzstan</option>
+    <option value="Libya">Libya</option>
+    <option value="Lithuania">Lithuania</option>
+    <option value="Malawi">Malawi</option>
+    <option value="Malaysia">Malaysia</option>
+    <option value="Mauritius">Mauritius</option>
+    <option value="Taiwan">Taiwan</option>
+    <option value="Mexico">Mexico</option>
+    <option value="Montenegro">Montenegro</option>
+    <option value="Myanmar">Myanmar</option>
+    <option value="Namibia">Namibia</option>
+    <option value="Nepal">Nepal</option>
+    <option value="Netherlands">Netherlands</option>
+    <option value="New Zealand">New Zealand</option>
+    <option value="Nigeria">Nigeria</option>
+    <option value="Pakistan">Pakistan</option>
+    <option value="Peru">Peru</option>
+    <option value="Philippines">Philippines</option>
+    <option value="Poland">Poland</option>
+    <option value="Qatar">Qatar</option>
+    <option value="Romania">Romania</option>
+    <option value="Russia">Russia</option>
+    <option value="Rwanda">Rwanda</option>
+    <option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
+    <option value="Serbia">Serbia</option>
+    <option value="Singapore">Singapore</option>
+    <option value="Slovakia">Slovakia</option>
+    <option value="South Korea">South Korea</option>
+    <option value="Spain">Spain</option>
+    <option value="Sri Lanka">Sri Lanka</option>
+    <option value="Sudan">Sudan</option>
+    <option value="Sweden">Sweden</option>
+    <option value="Syria">Syria</option>
+    <option value="Thailand">Thailand</option>
+    <option value="Turkey">Turkey</option>
+    <option value="Uganda">Uganda</option>
+    <option value="Ukraine">Ukraine</option>
+    <option value="United Arab Emirates">United Arab Emirates</option>
+    <option value="United Kingdom">United Kingdom</option>
+    <option value="United States">United States</option>
+    <option value="Uzbekistan">Uzbekistan</option>
+    <option value="Vietnam">Vietnam</option>
+    <option value="Zambia">Zambia</option>
+  </select>
+
+      <label>Article RCR:</label>
+      <input id="benchmarkRCR" type="number" step="0.01" placeholder="Enter article RCR" />
+
+      <button id="computeBenchmark">Compute Benchmark</button>
+      <div id="benchmarkTable"></div>
     </div>
   </div>
 
@@ -154,7 +285,6 @@
     // === Article Sharing ===
     document.getElementById("articleForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const pmid = document.getElementById("pmidInput").value.trim();
       const title = document.getElementById("titleInput").value.trim();
       const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
@@ -210,18 +340,78 @@
       tableDiv.innerHTML = html;
     }
 
+    // === Benchmarking Feature ===
+    function computePercentile(sortedArray, value) {
+      if (!sortedArray.length) return null;
+      let count = sortedArray.filter(v => v <= value).length;
+      return (count / sortedArray.length) * 100;
+    }
+
+    function median(array) {
+      if (!array.length) return null;
+      array.sort((a,b)=>a-b);
+      const mid = Math.floor(array.length/2);
+      return array.length % 2 === 0 ? (array[mid-1]+array[mid])/2 : array[mid];
+    }
+
+    function quartiles(array) {
+      if (!array.length) return [null, null];
+      array.sort((a,b)=>a-b);
+      const q1Index = Math.floor((array.length-1)/4);
+      const q3Index = Math.floor(3*(array.length-1)/4);
+      return [array[q1Index], array[q3Index]];
+    }
+
+    document.getElementById("computeBenchmark").addEventListener("click", async () => {
+      const specialty = document.getElementById("benchmarkSpecialty").value;
+      const location = document.getElementById("benchmarkLocation").value;
+      const articleRCR = parseFloat(document.getElementById("benchmarkRCR").value);
+
+      const snapshot = await getDocs(articlesCollection);
+      let articles = snapshot.docs.map(doc => doc.data());
+
+      if (specialty !== "All") articles = articles.filter(a => a.specialty === specialty);
+      if (location !== "All") articles = articles.filter(a => a.location === location);
+
+      const rcrs = articles.map(a => a.rcr).filter(r => r !== null).sort((a,b)=>a-b);
+      const articleCount = rcrs.length;
+      const med = median(rcrs)?.toFixed(2) || "Not Found";
+      const [q1, q3] = quartiles(rcrs).map(v => v?.toFixed(2) || "Not Found");
+      const percentile = articleRCR && rcrs.length ? computePercentile(rcrs, articleRCR).toFixed(0) : "N/A";
+
+      const tableDiv = document.getElementById("benchmarkTable");
+      tableDiv.innerHTML = `<table>
+        <tr>
+          <th>Specialty</th>
+          <th>Location</th>
+          <th>Article Count</th>
+          <th>Median</th>
+          <th>1Q</th>
+          <th>3Q</th>
+          <th>Percentile</th>
+        </tr>
+        <tr>
+          <td>${specialty}</td>
+          <td>${location}</td>
+          <td>${articleCount}</td>
+          <td>${med}</td>
+          <td>${q1}</td>
+          <td>${q3}</td>
+          <td>${percentile}</td>
+        </tr>
+      </table>`;
+    });
+
     // Load articles initially
     displayArticles();
 
     // === Tab switching ===
     const tabs = document.querySelectorAll(".tab-btn");
     const contents = document.querySelectorAll(".tab-content");
-
     tabs.forEach(tab => {
       tab.addEventListener("click", () => {
         tabs.forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
-
         contents.forEach(c => c.classList.remove("active"));
         document.getElementById(tab.dataset.tab).classList.add("active");
       });
