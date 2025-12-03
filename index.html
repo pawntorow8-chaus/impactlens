@@ -11,6 +11,37 @@
       background: #f4f4f4;
       text-align: center;
     }
+
+    .tab-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: #eee;
+      margin: 0 5px;
+      font-size: 16px;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .tab-btn.active {
+      background: white;
+      font-weight: bold;
+      border-bottom: 2px solid white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     .container {
       background: white;
       padding: 30px;
@@ -20,28 +51,33 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       margin-bottom: 40px;
     }
+
     input {
       padding: 10px;
       width: 90%;
       font-size: 16px;
       margin-bottom: 10px;
     }
+
     button {
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
       margin-bottom: 20px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
+
     th, td {
       padding: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
     }
+
     th {
       background: #eee;
     }
@@ -49,128 +85,147 @@
 </head>
 <body>
 
+  <!-- Tabs -->
+  <div class="tab-container">
+    <button class="tab-btn active" data-tab="rcrLookup">RCR Lookup</button>
+    <button class="tab-btn" data-tab="articleSharing">Article Sharing</button>
+  </div>
+
   <!-- RCR Lookup -->
-  <div class="container">
-    <h1>ImpactLens – RCR Lookup</h1>
-    <p>Enter a PubMed ID to retrieve the Relative Citation Ratio (RCR).</p>
-    <input id="pmid" type="text" placeholder="Enter PMID" />
-    <br>
-    <button onclick="getRCR()">Get RCR</button>
-    <div id="result"></div>
+  <div id="rcrLookup" class="tab-content active">
+    <div class="container">
+      <h1>ImpactLens – RCR Lookup</h1>
+      <p>Enter a PubMed ID to retrieve the Relative Citation Ratio (RCR).</p>
+      <input id="pmid" type="text" placeholder="Enter PMID" />
+      <br>
+      <button onclick="getRCR()">Get RCR</button>
+      <div id="result"></div>
+    </div>
   </div>
 
   <!-- Article Sharing -->
-  <div class="container">
-    <h1>Share an Article</h1>
-    <form id="articleForm">
-      <input id="pmidInput" placeholder="PMID (optional)" /><br>
-      <input id="titleInput" placeholder="Title" required /><br>
-      <input id="authorsInput" placeholder="Authors (comma separated)" required /><br>
-      <input id="specialtyInput" placeholder="Specialty" required /><br>
-      <input id="locationInput" placeholder="Location" required /><br>
-      <button type="submit">Submit Article</button>
-    </form>
-
-    <div id="articlesTable"></div>
+  <div id="articleSharing" class="tab-content">
+    <div class="container">
+      <h1>Share an Article</h1>
+      <form id="articleForm">
+        <input id="pmidInput" placeholder="PMID (optional)" /><br>
+        <input id="titleInput" placeholder="Title" required /><br>
+        <input id="authorsInput" placeholder="Authors (comma separated)" required /><br>
+        <input id="specialtyInput" placeholder="Specialty" required /><br>
+        <input id="locationInput" placeholder="Location" required /><br>
+        <button type="submit">Submit Article</button>
+      </form>
+      <div id="articlesTable"></div>
+    </div>
   </div>
 
-<script type="module">
-  import { db } from './firebaseConfig.js';
-  import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  <script type="module">
+    import { db } from './firebaseConfig.js';
+    import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-  const articlesCollection = collection(db, "articles");
+    const articlesCollection = collection(db, "articles");
 
-  // === RCR Lookup ===
-  async function getRCR() {
-    const pmid = document.getElementById("pmid").value.trim();
-    if (!pmid) {
-      document.getElementById("result").innerText = "Please enter a PMID.";
-      return;
-    }
-
-    const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (!data.data || data.data.length === 0) {
-        document.getElementById("result").innerText = "No data found for this PMID.";
+    // === RCR Lookup ===
+    async function getRCR() {
+      const pmid = document.getElementById("pmid").value.trim();
+      if (!pmid) {
+        document.getElementById("result").innerText = "Please enter a PMID.";
         return;
       }
-      const rcr = data.data[0].relative_citation_ratio;
-      document.getElementById("result").innerText =
-        `RCR: ${rcr !== null ? rcr.toFixed(3) : "Not available"}`;
-    } catch (error) {
-      document.getElementById("result").innerText = "Error fetching RCR.";
-      console.error(error);
-    }
-  }
-
-  // Expose getRCR to the global scope so the onclick button works
-  window.getRCR = getRCR;
-
-  // === Article Sharing ===
-  document.getElementById("articleForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const pmid = document.getElementById("pmidInput").value.trim();
-    const title = document.getElementById("titleInput").value.trim();
-    const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
-    const specialty = document.getElementById("specialtyInput").value.trim();
-    const location = document.getElementById("locationInput").value.trim();
-
-    let rcr = null;
-    if (pmid) {
+      const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
       try {
-        const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
         const response = await fetch(url);
         const data = await response.json();
-        if (data.data && data.data.length > 0) {
-          rcr = data.data[0].relative_citation_ratio;
+        if (!data.data || data.data.length === 0) {
+          document.getElementById("result").innerText = "No data found for this PMID.";
+          return;
         }
-      } catch(err) {
-        console.error("Error fetching RCR for article submission:", err);
+        const rcr = data.data[0].relative_citation_ratio;
+        document.getElementById("result").innerText =
+          `RCR: ${rcr !== null ? rcr.toFixed(3) : "Not available"}`;
+      } catch (error) {
+        document.getElementById("result").innerText = "Error fetching RCR.";
+        console.error(error);
       }
     }
 
-    await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year: new Date().getFullYear() });
-    displayArticles();
+    window.getRCR = getRCR; // expose to global for button onclick
 
-    // Clear form
-    document.getElementById("articleForm").reset();
-  });
+    // === Article Sharing ===
+    document.getElementById("articleForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  async function displayArticles() {
-    const snapshot = await getDocs(articlesCollection);
-    const tableDiv = document.getElementById("articlesTable");
+      const pmid = document.getElementById("pmidInput").value.trim();
+      const title = document.getElementById("titleInput").value.trim();
+      const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
+      const specialty = document.getElementById("specialtyInput").value.trim();
+      const location = document.getElementById("locationInput").value.trim();
 
-    let html = `<table>
-      <tr>
-        <th>PMID</th>
-        <th>Title</th>
-        <th>Authors</th>
-        <th>Specialty</th>
-        <th>Location</th>
-        <th>RCR</th>
-      </tr>`;
+      let rcr = null;
+      if (pmid) {
+        try {
+          const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            rcr = data.data[0].relative_citation_ratio;
+          }
+        } catch(err) {
+          console.error("Error fetching RCR for article submission:", err);
+        }
+      }
 
-    snapshot.forEach(doc => {
-      const a = doc.data();
-      html += `<tr>
-        <td>${a.pmid || ""}</td>
-        <td>${a.title}</td>
-        <td>${a.authors.join(', ')}</td>
-        <td>${a.specialty}</td>
-        <td>${a.location}</td>
-        <td>${a.rcr !== null ? a.rcr.toFixed(2) : "N/A"}</td>
-      </tr>`;
+      await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year: new Date().getFullYear() });
+      displayArticles();
+      document.getElementById("articleForm").reset();
     });
 
-    html += `</table>`;
-    tableDiv.innerHTML = html;
-  }
+    async function displayArticles() {
+      const snapshot = await getDocs(articlesCollection);
+      const tableDiv = document.getElementById("articlesTable");
 
-  // Load articles initially
-  displayArticles();
-</script>
+      let html = `<table>
+        <tr>
+          <th>PMID</th>
+          <th>Title</th>
+          <th>Authors</th>
+          <th>Specialty</th>
+          <th>Location</th>
+          <th>RCR</th>
+        </tr>`;
+
+      snapshot.forEach(doc => {
+        const a = doc.data();
+        html += `<tr>
+          <td>${a.pmid || ""}</td>
+          <td>${a.title}</td>
+          <td>${a.authors.join(', ')}</td>
+          <td>${a.specialty}</td>
+          <td>${a.location}</td>
+          <td>${a.rcr !== null ? a.rcr.toFixed(2) : "N/A"}</td>
+        </tr>`;
+      });
+
+      html += `</table>`;
+      tableDiv.innerHTML = html;
+    }
+
+    // Load articles initially
+    displayArticles();
+
+    // === Tab switching ===
+    const tabs = document.querySelectorAll(".tab-btn");
+    const contents = document.querySelectorAll(".tab-content");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        contents.forEach(c => c.classList.remove("active"));
+        document.getElementById(tab.dataset.tab).classList.add("active");
+      });
+    });
+  </script>
 </body>
 </html>
