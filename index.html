@@ -74,100 +74,103 @@
     <div id="articlesTable"></div>
   </div>
 
-  <script type="module">
-    import { db } from './firebaseConfig.js';
-    import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+<script type="module">
+  import { db } from './firebaseConfig.js';
+  import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    const articlesCollection = collection(db, "articles");
+  const articlesCollection = collection(db, "articles");
 
-    // === RCR Lookup ===
-    async function getRCR() {
-      const pmid = document.getElementById("pmid").value.trim();
-      if (!pmid) {
-        document.getElementById("result").innerText = "Please enter a PMID.";
+  // === RCR Lookup ===
+  async function getRCR() {
+    const pmid = document.getElementById("pmid").value.trim();
+    if (!pmid) {
+      document.getElementById("result").innerText = "Please enter a PMID.";
+      return;
+    }
+
+    const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!data.data || data.data.length === 0) {
+        document.getElementById("result").innerText = "No data found for this PMID.";
         return;
       }
+      const rcr = data.data[0].relative_citation_ratio;
+      document.getElementById("result").innerText =
+        `RCR: ${rcr !== null ? rcr.toFixed(3) : "Not available"}`;
+    } catch (error) {
+      document.getElementById("result").innerText = "Error fetching RCR.";
+      console.error(error);
+    }
+  }
 
-      const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
+  // Expose getRCR to the global scope so the onclick button works
+  window.getRCR = getRCR;
+
+  // === Article Sharing ===
+  document.getElementById("articleForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const pmid = document.getElementById("pmidInput").value.trim();
+    const title = document.getElementById("titleInput").value.trim();
+    const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
+    const specialty = document.getElementById("specialtyInput").value.trim();
+    const location = document.getElementById("locationInput").value.trim();
+
+    let rcr = null;
+    if (pmid) {
       try {
+        const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
         const response = await fetch(url);
         const data = await response.json();
-        if (!data.data || data.data.length === 0) {
-          document.getElementById("result").innerText = "No data found for this PMID.";
-          return;
+        if (data.data && data.data.length > 0) {
+          rcr = data.data[0].relative_citation_ratio;
         }
-        const rcr = data.data[0].relative_citation_ratio;
-        document.getElementById("result").innerText =
-          `RCR: ${rcr !== null ? rcr.toFixed(3) : "Not available"}`;
-      } catch (error) {
-        document.getElementById("result").innerText = "Error fetching RCR.";
-        console.error(error);
+      } catch(err) {
+        console.error("Error fetching RCR for article submission:", err);
       }
     }
 
-    // === Article Sharing ===
-    document.getElementById("articleForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year: new Date().getFullYear() });
+    displayArticles();
 
-      const pmid = document.getElementById("pmidInput").value.trim();
-      const title = document.getElementById("titleInput").value.trim();
-      const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
-      const specialty = document.getElementById("specialtyInput").value.trim();
-      const location = document.getElementById("locationInput").value.trim();
+    // Clear form
+    document.getElementById("articleForm").reset();
+  });
 
-      let rcr = null;
-      if (pmid) {
-        try {
-          const url = `/.netlify/functions/getRCR?pmid=${pmid}`;
-          const response = await fetch(url);
-          const data = await response.json();
-          if (data.data && data.data.length > 0) {
-            rcr = data.data[0].relative_citation_ratio;
-          }
-        } catch(err) {
-          console.error("Error fetching RCR for article submission:", err);
-        }
-      }
+  async function displayArticles() {
+    const snapshot = await getDocs(articlesCollection);
+    const tableDiv = document.getElementById("articlesTable");
 
-      await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year: new Date().getFullYear() });
-      displayArticles();
+    let html = `<table>
+      <tr>
+        <th>PMID</th>
+        <th>Title</th>
+        <th>Authors</th>
+        <th>Specialty</th>
+        <th>Location</th>
+        <th>RCR</th>
+      </tr>`;
 
-      // Clear form
-      document.getElementById("articleForm").reset();
+    snapshot.forEach(doc => {
+      const a = doc.data();
+      html += `<tr>
+        <td>${a.pmid || ""}</td>
+        <td>${a.title}</td>
+        <td>${a.authors.join(', ')}</td>
+        <td>${a.specialty}</td>
+        <td>${a.location}</td>
+        <td>${a.rcr !== null ? a.rcr.toFixed(2) : "N/A"}</td>
+      </tr>`;
     });
 
-    async function displayArticles() {
-      const snapshot = await getDocs(articlesCollection);
-      const tableDiv = document.getElementById("articlesTable");
+    html += `</table>`;
+    tableDiv.innerHTML = html;
+  }
 
-      let html = `<table>
-        <tr>
-          <th>PMID</th>
-          <th>Title</th>
-          <th>Authors</th>
-          <th>Specialty</th>
-          <th>Location</th>
-          <th>RCR</th>
-        </tr>`;
-
-      snapshot.forEach(doc => {
-        const a = doc.data();
-        html += `<tr>
-          <td>${a.pmid || ""}</td>
-          <td>${a.title}</td>
-          <td>${a.authors.join(', ')}</td>
-          <td>${a.specialty}</td>
-          <td>${a.location}</td>
-          <td>${a.rcr !== null ? a.rcr.toFixed(2) : "N/A"}</td>
-        </tr>`;
-      });
-
-      html += `</table>`;
-      tableDiv.innerHTML = html;
-    }
-
-    // Load articles initially
-    displayArticles();
-  </script>
+  // Load articles initially
+  displayArticles();
+</script>
 </body>
 </html>
