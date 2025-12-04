@@ -102,11 +102,13 @@
       <div id="result"></div>
     </div>
 
-    <!-- Benchmarking Feature -->
+<!-- Benchmarking Feature -->
 <div class="container">
   <h2>Benchmark Article</h2>
-  <label>Specialty:</label>
-  <select id="benchmarkSpecialty">
+
+  <!-- Specialty -->
+  <label for="benchmarkSpecialty" style="display:block; margin-top:10px;">Specialty:</label>
+  <select id="benchmarkSpecialty" style="width:90%; padding:10px; font-size:16px; margin-bottom:10px;">
     <option value="All">All Specialties</option>
     <option value="Orthopaedic Surgery">Orthopaedic Surgery</option>
     <option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option>
@@ -134,8 +136,9 @@
     <option value="Rheumatology">Rheumatology</option>
   </select>
 
-  <label>Location:</label>
-  <select id="benchmarkLocation">
+  <!-- Location -->
+  <label for="benchmarkLocation" style="display:block; margin-top:10px;">Location:</label>
+  <select id="benchmarkLocation" style="width:90%; padding:10px; font-size:16px; margin-bottom:10px;">
     <option value="All">All Locations</option>
     <option value="Afghanistan">Afghanistan</option>
     <option value="Albania">Albania</option>
@@ -224,22 +227,22 @@
     <option value="Uzbekistan">Uzbekistan</option>
     <option value="Vietnam">Vietnam</option>
     <option value="Zambia">Zambia</option>
-  </select><br>
+  </select>
 
-<div style="margin-top:14px;">
-  <label for="benchmarkRCR">Article RCR:</label>
+  <!-- Article RCR -->
+  <label for="benchmarkRCR" style="display:block; margin-top:10px;">Article RCR:</label>
   <input 
     id="benchmarkRCR" 
     type="number" 
     step="0.01" 
     placeholder="Enter article RCR"
+    style="width:90%; padding:10px; font-size:16px; margin-bottom:10px;"
   />
-</div>
 
-      <button id="computeBenchmark">Compute Benchmark</button>
-      <div id="benchmarkTable"></div>
-    </div>
-  </div>
+  <!-- Compute Benchmark Button -->
+  <button id="computeBenchmark" style="margin-top:10px;">Compute Benchmark</button>
+  <div id="benchmarkTable" style="margin-top:10px;"></div>
+</div>
 
   <!-- Article Sharing -->
   <div id="articleSharing" class="tab-content">
