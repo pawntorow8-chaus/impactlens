@@ -227,7 +227,7 @@
   </select><br>
 
 <div style="margin-top:14px;">
-  <label for="benchmarkRCR">Article RCR:</label><br>
+  <label for="benchmarkRCR">Article RCR:</label>
   <input 
     id="benchmarkRCR" 
     type="number" 
@@ -248,6 +248,7 @@
       <form id="articleForm">
         <input id="pmidInput" placeholder="PMID (optional)" /><br>
         <input id="titleInput" placeholder="Title" required /><br>
+	<input id="yearInput" type="number" placeholder="Year" /><br>
         <input id="authorsInput" placeholder="Authors (comma separated)" required /><br>
 	<input id="specialtyInput" placeholder="Specialty (Focus) ex. Cardiology, Neurology" required /><br>
 	<input id="locationInput" placeholder="Location (Country) ex. United States, United Kingdom" required /><br>
@@ -294,6 +295,7 @@
       e.preventDefault();
       const pmid = document.getElementById("pmidInput").value.trim();
       const title = document.getElementById("titleInput").value.trim();
+      const year = parseInt(document.getElementById("yearInput").value) || new Date().getFullYear();
       const authors = document.getElementById("authorsInput").value.split(',').map(a => a.trim());
       const specialty = document.getElementById("specialtyInput").value.trim();
       const location = document.getElementById("locationInput").value.trim();
@@ -312,9 +314,9 @@
         }
       }
 
-      await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year: new Date().getFullYear() });
-      displayArticles();
-      document.getElementById("articleForm").reset();
+       await addDoc(articlesCollection, { pmid, title, authors, specialty, location, rcr, year });
+       displayArticles();
+       document.getElementById("articleForm").reset();
     });
 
     async function displayArticles() {
