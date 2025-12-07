@@ -67,6 +67,54 @@
       margin-bottom: 20px;
     }
 
+      #searchFilterWrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px; /* spacing between search and filter */
+        width: 90%;
+        max-width: 1000px;
+        margin: 1rem auto;
+      }
+
+      #searchInput {
+        flex: 1;
+        
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+         min-width: 0;
+      }
+
+      #searchInput::placeholder {
+        color: #000000; /* change this to any color you want */
+        opacity: 1;  /* some browsers make placeholder semi-transparent by default */
+      }
+
+      #filterSpecialty {
+        flex: 1; 
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+         min-width: 0;
+        -webkit-appearance: none; /* remove default style in Chrome/Safari */
+        -moz-appearance: none;    /* remove default style in Firefox */
+        appearance: none;         /* modern standard */
+        padding: 0.5rem 1rem;     /* match the search input */
+        text-indent: 0;           /* remove default extra indent */
+        text-align: left;         /* align text to left */
+      }
+      #filterSpecialty {
+        background: url('data:image/svg+xml;utf8,<svg fill="gray" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 0.5rem center;
+        background-size: 1rem;
+      }
+
+    #searchInput:focus {
+      border-color: #0419d1ff; /* match your dashboard blue */
+      box-shadow: 0 0 0 2px rgba(4, 25, 209, 0.2);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -82,6 +130,19 @@
     th {
       background: #eee;
     }
+
+  #articlesTable, #benchmarkTable {
+  max-height: 500px; /* adjust height as needed */
+  overflow-y: auto;
+  display: block; /* necessary for scroll to work */
+  border: 1px solid #ccc; /* optional, for visual boundary */
+  border-radius: 5px; /* optional */
+}
+
+#articlesTable table, #benchmarkTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
   </style>
 </head>
 <body>
@@ -259,7 +320,15 @@
 	<input id="locationInput" placeholder="Location (Country) ex. United States, United Kingdom" required /><br>
         <button type="submit">Submit Article</button>
       </form>
+      <div id="searchFilterWrapper">
+        <input type="text" id="searchInput" placeholder="Search articles..." />
+        <select id="filterSpecialty">
+          <option value="All">All Specialties</option>
+          <!-- dynamically filled with specialties -->
+        </select>
+      </div>
       <div id="articlesTable"></div>
+
     </div>
   </div>
 
@@ -324,13 +393,19 @@
        document.getElementById("articleForm").reset();
     });
 
-    async function displayArticles() {
-      const snapshot = await getDocs(articlesCollection);
-      const tableDiv = document.getElementById("articlesTable");
+let allArticles = []; // store all articles
 
+async function displayArticles() {
+  const snapshot = await getDocs(articlesCollection);
+  allArticles = snapshot.docs.map(doc => doc.data());
+  renderArticles(allArticles.slice(0, 10)); // show first 10 initially
+}
+
+    function renderArticles(articlesToRender) {
+      const tableDiv = document.getElementById("articlesTable");
       let html = `<table>
         <tr>
-          <th>PMID</th>
+          <td>PMID</td>
           <th>Title</th>
           <th>Authors</th>
           <th>Specialty</th>
@@ -338,10 +413,12 @@
           <th>RCR</th>
         </tr>`;
 
-      snapshot.forEach(doc => {
-        const a = doc.data();
-        html += `<tr>
-          <td>${a.pmid || ""}</td>
+      articlesToRender.forEach(a => {
+        let pmidHTML = a.pmid 
+          ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${a.pmid}/" target="_blank">${a.pmid}</a>` 
+          : "";
+        html += `<tr class="article-row">
+          <td>${pmidHTML}</td>
           <td>${a.title}</td>
           <td>${a.authors.join(', ')}</td>
           <td>${a.specialty}</td>
@@ -375,6 +452,7 @@
       const q3Index = Math.floor(3*(array.length-1)/4);
       return [array[q1Index], array[q3Index]];
     }
+
 
     document.getElementById("computeBenchmark").addEventListener("click", async () => {
       const specialty = document.getElementById("benchmarkSpecialty").value;
@@ -416,8 +494,52 @@
       </table>`;
     });
 
+  async function populateSpecialtyFilter() {
+  const snapshot = await getDocs(articlesCollection);
+  const specialtiesSet = new Set();
+
+  snapshot.forEach(doc => {
+    const a = doc.data();
+    if (a.specialty) specialtiesSet.add(a.specialty);
+  });
+
+  const filterSelect = document.getElementById('filterSpecialty');
+  
+  // Clear existing options except "All"
+  filterSelect.innerHTML = '<option value="All">All Specialties</option>';
+
+  // Add specialties dynamically
+  [...specialtiesSet].sort().forEach(spec => {
+    const option = document.createElement('option');
+    option.value = spec;
+    option.textContent = spec;
+    filterSelect.appendChild(option);
+  });
+}
+
     // Load articles initially
     displayArticles();
+    populateSpecialtyFilter();
+
+const searchInput = document.getElementById('searchInput');
+const filterSelect = document.getElementById('filterSpecialty');
+
+function filterArticles() {
+  const query = searchInput.value.toLowerCase();
+  const specialty = filterSelect.value;
+
+  const filtered = allArticles.filter(a => {
+    const matchesSearch = Object.values(a).some(v => String(v).toLowerCase().includes(query));
+    const matchesSpecialty = specialty === 'All' || a.specialty === specialty;
+    return matchesSearch && matchesSpecialty;
+  });
+
+  renderArticles(filtered); 
+}
+
+// Add event listeners
+searchInput.addEventListener('input', filterArticles);
+filterSelect.addEventListener('change', filterArticles);
 
     // === Tab switching ===
     const tabs = document.querySelectorAll(".tab-btn");
